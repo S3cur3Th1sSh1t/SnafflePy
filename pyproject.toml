@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pysnaffler"
+version = "0.1.0"
+description = "Snaffler in Python"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+    { name = "S3cur3Th1sSh1t" },
+]
+keywords = ["snaffler", "active-directory", "smb", "security", "pentest"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+]
+dependencies = [
+    "impacket>=0.11.0",
+    "cryptography>=3.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/S3cur3Th1sSh1t/SnafflePy"
+
+[project.scripts]
+snaffler = "pysnaffler.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pysnaffler"]
