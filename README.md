@@ -60,6 +60,34 @@ python3 snaffler.py --help
 
 Python 3.11+ (uses `tomllib`).
 
+### uv
+
+[uv](https://docs.astral.sh/uv/) installs the tool into an isolated environment,
+pulls in `impacket` and `cryptography`, and puts a `snaffler` executable on your
+`PATH`:
+
+```bash
+uv tool install git+https://github.com/S3cur3Th1sSh1t/SnafflePy
+snaffler --help
+```
+
+From a checkout, install the local project instead:
+
+```bash
+git clone https://github.com/S3cur3Th1sSh1t/SnafflePy
+cd SnafflePy
+uv tool install .
+```
+
+`uvx` runs it once without installing anything:
+
+```bash
+uvx --from git+https://github.com/S3cur3Th1sSh1t/SnafflePy snaffler --help
+```
+
+Upgrade with `uv tool upgrade pysnaffler`, remove with
+`uv tool uninstall pysnaffler`.
+
 ## Usage
 
 The flags are the originals. Credentials are the only addition, because the C#
