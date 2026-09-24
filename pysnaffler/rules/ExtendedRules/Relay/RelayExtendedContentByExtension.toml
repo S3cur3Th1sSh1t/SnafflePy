@@ -1,0 +1,20 @@
+# snaffleplus - relays a broad set of config/code/data files into the
+# extended content classifiers above. Without this relay the KeepSecretsPlus*
+# rules never run (Snaffler only greps file contents via a relay).
+[[ClassifierRules]]
+EnumerationScope = "FileEnumeration"
+RuleName = "RelayExtendedContentByExtension"
+MatchAction = "Relay"
+RelayTargets = ["KeepSecretsPlusBlack", "KeepSecretsPlusRed", "KeepSecretsPlusYellow"]
+Description = "Files with these extensions are searched for extended secret patterns."
+MatchLocation = "FileExtension"
+WordListType = "Exact"
+MatchLength = 0
+WordList = [
+"\\.config", "\\.xml", "\\.json", "\\.yml", "\\.yaml", "\\.ini", "\\.env",
+"\\.txt", "\\.ps1", "\\.psm1", "\\.psd1", "\\.bat", "\\.cmd", "\\.sh", "\\.bash",
+"\\.py", "\\.rb", "\\.php", "\\.pl", "\\.js", "\\.ts", "\\.java", "\\.cs",
+"\\.go", "\\.tf", "\\.tfvars", "\\.tfstate", "\\.properties", "\\.conf",
+"\\.cnf", "\\.inf", "\\.reg", "\\.sql", "\\.md", "\\.log", "\\.csv", "\\.toml"
+]
+Triage = "Green"

@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snaffler Report</title>
+<style>
+/* ============================================================
+   Snaffler HTML report - fully offline, no external resources
+   ============================================================ */
+
+:root {
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
+  --r-sm: 6px;
+  --r-md: 9px;
+  --r-lg: 14px;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  --toolbar-h: 0px;
+}
+
+/* ---------- dark (default) ---------- */
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:        #0a0c10;
+  --bg-grad:   radial-gradient(1200px 600px at 12% -10%, #141a24 0%, rgba(10,12,16,0) 70%);
+  --panel:     #11141a;
+  --panel-2:   #161a22;
+  --panel-3:   #1b2029;
+  --line:      #232936;
+  --line-soft: #1a1f28;
+  --line-strong:#313949;
+
+  --fg:        #e7eaf0;
+  --fg-dim:    #97a0b0;
+  --fg-faint:  #67707f;
+
+  --accent:      #58a6ff;
+  --accent-soft: rgba(88,166,255,.14);
+  --accent-line: rgba(88,166,255,.45);
+
+  --hover:     rgba(255,255,255,.035);
+  --sel:       rgba(88,166,255,.09);
+  --shadow:    0 1px 2px rgba(0,0,0,.5), 0 8px 28px rgba(0,0,0,.35);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.45);
+
+  --tri-black-fg: #ffffff;
+  --tri-black-bg: #05070b;
+  --tri-black-ln: #eef1f7;
+  --tri-black-glow: 0 0 0 1px rgba(238,241,247,.30), 0 0 14px rgba(255,255,255,.18);
+
+  --tri-red:     #d9333f;
+  --tri-red-fg:  #ff9098;
+  --tri-red-bg:  rgba(217,51,63,.15);
+  --tri-red-ln:  rgba(217,51,63,.62);
+
+  --tri-yellow:    #d9a333;
+  --tri-yellow-fg: #f3ca6d;
+  --tri-yellow-bg: rgba(217,163,51,.14);
+  --tri-yellow-ln: rgba(217,163,51,.55);
+
+  --tri-green:     #3f9c48;
+  --tri-green-fg:  #79d183;
+  --tri-green-bg:  rgba(63,156,72,.14);
+  --tri-green-ln:  rgba(63,156,72,.55);
+
+  --tri-gray:      #6b7483;
+  --tri-gray-fg:   #a3abb9;
+  --tri-gray-bg:   rgba(107,116,131,.16);
+  --tri-gray-ln:   rgba(107,116,131,.5);
+}
+
+/* ---------- light ---------- */
+html[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:        #f4f6f9;
+  --bg-grad:   radial-gradient(1100px 560px at 12% -10%, #e8edf5 0%, rgba(244,246,249,0) 70%);
+  --panel:     #ffffff;
+  --panel-2:   #f7f9fc;
+  --panel-3:   #eef1f6;
+  --line:      #dde2ea;
+  --line-soft: #e8ecf2;
+  --line-strong:#c6cedb;
+
+  --fg:        #12161d;
+  --fg-dim:    #5b6575;
+  --fg-faint:  #8b94a3;
+
+  --accent:      #1f6feb;
+  --accent-soft: rgba(31,111,235,.10);
+  --accent-line: rgba(31,111,235,.42);
+
+  --hover:     rgba(16,24,40,.035);
+  --sel:       rgba(31,111,235,.07);
+  --shadow:    0 1px 2px rgba(16,24,40,.06), 0 10px 26px rgba(16,24,40,.08);
+  --shadow-sm: 0 1px 2px rgba(16,24,40,.07);
+
+  --tri-black-fg: #ffffff;
+  --tri-black-bg: #0b0e14;
+  --tri-black-ln: #0b0e14;
+  --tri-black-glow: 0 0 0 2px rgba(11,14,20,.14);
+
+  --tri-red:     #c02531;
+  --tri-red-fg:  #a01923;
+  --tri-red-bg:  rgba(217,51,63,.12);
+  --tri-red-ln:  rgba(192,37,49,.55);
+
+  --tri-yellow:    #a8761a;
+  --tri-yellow-fg: #855a08;
+  --tri-yellow-bg: rgba(217,163,51,.18);
+  --tri-yellow-ln: rgba(168,118,26,.5);
+
+  --tri-green:     #2f7c37;
+  --tri-green-fg:  #23662b;
+  --tri-green-bg:  rgba(63,156,72,.14);
+  --tri-green-ln:  rgba(47,124,55,.5);
+
+  --tri-gray:      #6b7483;
+  --tri-gray-fg:   #5b6575;
+  --tri-gray-bg:   rgba(107,116,131,.13);
+  --tri-gray-ln:   rgba(107,116,131,.42);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  background-image: var(--bg-grad);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.wrap {
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 0 var(--sp-5) 96px;
+}
+
+a { color: var(--accent); }
+
+::selection { background: var(--accent-soft); }
+
+/* scrollbars */
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+*::-webkit-scrollbar { width: 11px; height: 11px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 8px; border: 3px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-thumb:hover { background: var(--fg-faint); background-clip: content-box; }
+
+/* ============================ header ============================ */
+
+header.top {
+  padding: var(--sp-6) 0 var(--sp-5);
+  display: flex;
+  gap: var(--sp-5);
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+.mark {
+  width: 42px; height: 42px;
+  border-radius: 11px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-sm);
+  flex: none;
+}
+.mark i { display: block; }
+.mark i:nth-child(1) { background: var(--tri-black-bg); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); }
+.mark i:nth-child(2) { background: var(--tri-red); }
+.mark i:nth-child(3) { background: var(--tri-yellow); }
+.mark i:nth-child(4) { background: var(--tri-green); }
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+h1 .dim { color: var(--fg-faint); font-weight: 450; }
+
+.tagline {
+  margin: 3px 0 0;
+  color: var(--fg-dim);
+  font-size: 12.5px;
+  letter-spacing: .02em;
+}
+
+.top-actions { display: flex; gap: var(--sp-2); align-items: center; }
+
+/* ---------- meta ---------- */
+
+.meta {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4) var(--sp-5);
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--sp-4) var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+.meta .cell { min-width: 0; }
+.meta .k {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--fg-faint);
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.meta .v {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--fg);
+  word-break: break-word;
+}
+.meta .cell.wide { grid-column: 1 / -1; }
+.meta .cell.wide .v {
+  background: var(--panel-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm);
+  padding: 7px 10px;
+  color: var(--fg-dim);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ============================ tiles ============================ */
+
+.tiles-head {
+  display: flex; align-items: baseline; gap: var(--sp-3);
+  margin: 0 0 var(--sp-3);
+}
+.section-title {
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--fg-faint); font-weight: 650; margin: 0;
+}
+.hint { font-size: 12px; color: var(--fg-faint); }
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+
+.tile {
+  position: relative;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  border-radius: var(--r-lg);
+  padding: 14px 16px 13px;
+  transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.tile::before {
+  content: "";
+  position: absolute; inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--tile-c, var(--line-strong));
+  opacity: .55;
+  transition: opacity .12s ease, width .12s ease;
+}
+.tile:hover { transform: translateY(-1px); border-color: var(--line-strong); background: var(--panel-2); }
+.tile:hover::before { opacity: .9; }
+.tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.tile .n {
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--tile-c, var(--fg));
+}
+.tile .l {
+  margin-top: 7px;
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+  font-weight: 650; color: var(--fg-dim);
+}
+.tile .state {
+  margin-left: auto;
+  font-size: 10px; letter-spacing: .08em;
+  color: var(--fg-faint);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 1px 7px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.tile[aria-pressed="true"] {
+  background: var(--tile-bg, var(--panel-2));
+  border-color: var(--tile-c, var(--accent));
+}
+.tile[aria-pressed="true"]::before { width: 4px; opacity: 1; }
+.tile[aria-pressed="true"] .state {
+  color: var(--tile-c);
+  border-color: var(--tile-c);
+  background: var(--panel);
+}
+.tile[data-triage="Black"][aria-pressed="true"] { box-shadow: var(--tri-black-glow); }
+
+.tile.plain { cursor: default; }
+.tile.plain:hover { transform: none; background: var(--panel); border-color: var(--line); }
+.tile.plain .n { font-size: 24px; color: var(--fg); }
+
+/* ============================ toolbar ============================ */
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--bg);
+  padding: var(--sp-3) 0 var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--sp-4);
+}
+/* NOTE: the toolbar spans the same content width as the table panel below it,
+   so its own opaque background is enough - no full-bleed pseudo-element, which
+   would add horizontal page overflow. */
+
+.tabs { display: flex; gap: var(--sp-1); margin-bottom: var(--sp-3); flex-wrap: wrap; }
+.tab {
+  font: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--fg-dim);
+  padding: 7px 14px;
+  border-radius: var(--r-md);
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+.tab .badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--panel-3);
+  color: var(--fg-dim);
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-variant-numeric: tabular-nums;
+}
+.tab:hover { background: var(--hover); color: var(--fg); }
+.tab[aria-selected="true"] {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--fg);
+  box-shadow: var(--shadow-sm);
+}
+.tab[aria-selected="true"] .badge { background: var(--accent-soft); color: var(--accent); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.filters {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search {
+  position: relative;
+  flex: 1 1 320px;
+  min-width: 220px;
+  max-width: 560px;
+}
+.search input {
+  width: 100%;
+  font: inherit;
+  font-size: 13px;
+  color: var(--fg);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 8px 68px 8px 32px;
+  transition: border-color .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.search input::placeholder { color: var(--fg-faint); }
+.search input:focus {
+  outline: none;
+  border-color: var(--accent-line);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.search .icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 13px; height: 13px; pointer-events: none; color: var(--fg-faint);
+}
+.search .kbd {
+  position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+  pointer-events: none;
+}
+kbd {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--fg-faint);
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 1px 5px;
+  background: var(--panel-2);
+}
+
+/* buttons */
+.btn {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 550;
+  cursor: pointer;
+  color: var(--fg-dim);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 8px 12px;
+  display: inline-flex; align-items: center; gap: 7px;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+.btn:hover { background: var(--panel-2); color: var(--fg); border-color: var(--line-strong); }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+.btn svg { width: 13px; height: 13px; flex: none; }
+.btn.ghost { background: transparent; }
+.btn.danger-ghost:hover { color: var(--tri-red-fg); border-color: var(--tri-red-ln); }
+
+.spacer { flex: 1 1 auto; }
+
+.count-pill {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  padding: 7px 2px;
+}
+.count-pill b { color: var(--fg); font-weight: 650; }
+
+/* ---------- multi-select ---------- */
+
+.ms { position: relative; }
+.ms > .btn { min-width: 132px; justify-content: space-between; }
+.ms > .btn .lab { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ms > .btn .cnt {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 20px;
+  padding: 0 7px;
+  font-weight: 650;
+}
+.ms.active > .btn { border-color: var(--accent-line); color: var(--fg); }
+.ms .caret { width: 9px; height: 9px; opacity: .6; flex: none; }
+
+.ms-panel {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 380px;
+  max-width: min(380px, 92vw);
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: none;
+}
+.ms.open .ms-panel { display: block; }
+.ms-panel.flip-right { left: auto; right: 0; }
+
+.ms-search {
+  padding: 9px;
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--panel-2);
+}
+.ms-search input {
+  width: 100%;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--fg);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 6px 9px;
+}
+.ms-search input:focus { outline: none; border-color: var(--accent-line); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.ms-list { max-height: 306px; overflow-y: auto; padding: 5px; }
+
+.ms-opt {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  user-select: none;
+}
+.ms-opt:hover { background: var(--hover); }
+.ms-opt input { accent-color: var(--accent); margin: 0; flex: none; width: 13px; height: 13px; }
+.ms-opt .t {
+  font-family: var(--mono);
+  font-size: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: ltr;
+}
+.ms-opt .c {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-faint);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+.ms-opt.hidden { display: none; }
+
+.ms-foot {
+  display: flex; gap: var(--sp-2); justify-content: space-between; align-items: center;
+  padding: 8px 9px;
+  border-top: 1px solid var(--line-soft);
+  background: var(--panel-2);
+}
+.ms-foot .lnk {
+  font: inherit; font-size: 12px; cursor: pointer;
+  background: none; border: none; padding: 2px 4px; border-radius: 4px;
+  color: var(--accent);
+}
+.ms-foot .lnk:hover { text-decoration: underline; }
+.ms-foot .meta-c { font-size: 11.5px; color: var(--fg-faint); font-family: var(--mono); }
+
+.ms-empty { padding: 18px 12px; text-align: center; color: var(--fg-faint); font-size: 12.5px; }
+
+/* ---------- active filter chips ---------- */
+
+.activebar {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  margin-bottom: var(--sp-3);
+}
+.activebar:empty { display: none; }
+.fchip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 3px 4px 3px 10px;
+  color: var(--fg-dim);
+  max-width: 340px;
+}
+.fchip .kk { color: var(--fg-faint); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 650; }
+.fchip .vv { font-family: var(--mono); color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fchip button {
+  border: none; background: none; cursor: pointer; color: var(--fg-faint);
+  font-size: 14px; line-height: 1; padding: 2px 5px; border-radius: 50%;
+}
+.fchip button:hover { background: var(--hover); color: var(--fg); }
+
+/* ============================ table ============================ */
+
+/* IMPORTANT: neither .panel nor any ancestor of the table may establish a
+   scroll container (overflow auto/scroll/hidden). The <thead> uses
+   position:sticky and must resolve its offset against the viewport - an
+   overflow ancestor would become its nearest scrolling ancestor and the header
+   would both sit at the wrong place and never stick. Narrow screens are
+   handled by dropping columns (see the .c-mod / .c-rw / .c-rule media queries
+   below), not by scrolling the table horizontally. */
+.panel {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  box-shadow: var(--shadow-sm);
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+/* Sticky on BOTH thead and th: modern engines stick the whole thead as one
+   unit, older ones fall back to per-cell sticky. Applying both is idempotent -
+   once the thead is pinned the cells have no room left to offset further. */
+thead {
+  position: sticky;
+  top: var(--toolbar-h);
+  z-index: 20;
+}
+thead th {
+  position: sticky;
+  top: var(--toolbar-h);
+  z-index: 20;
+  background: var(--panel-2);
+  color: var(--fg-dim);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  user-select: none;
+  /* .panel no longer clips, so round the header's own outer corners */
+  box-shadow: 0 1px 0 var(--line);
+}
+thead th:first-child { border-top-left-radius: calc(var(--r-lg) - 1px); }
+thead th:last-child  { border-top-right-radius: calc(var(--r-lg) - 1px); }
+thead th.sortable { cursor: pointer; }
+thead th.sortable:hover { color: var(--fg); background: var(--panel-3); }
+thead th .arrow { opacity: 0; margin-left: 5px; font-size: 9px; }
+thead th[aria-sort="ascending"] .arrow,
+thead th[aria-sort="descending"] .arrow { opacity: 1; color: var(--accent); }
+thead th[aria-sort="ascending"] .arrow::after { content: "\25B2"; }
+thead th[aria-sort="descending"] .arrow::after { content: "\25BC"; }
+thead th[aria-sort="none"] .arrow::after { content: "\2195"; }
+thead th.sortable:hover .arrow { opacity: .5; }
+thead th[aria-sort="ascending"], thead th[aria-sort="descending"] { color: var(--fg); }
+
+tbody tr.row { cursor: pointer; }
+tbody tr.row > td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+  font-size: 12.5px;
+}
+tbody tr.row:hover > td { background: var(--hover); }
+tbody tr.row.open > td { background: var(--sel); border-bottom-color: transparent; }
+tbody tr.row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+/* last row's rule would otherwise cut across the panel's rounded bottom corners */
+tbody tr:last-child > td { border-bottom-color: transparent; }
+
+td.c-size { text-align: right; }
+
+/* Responsive columns, in CSS so they need no resize event to work (some hosts
+   never fire one). Column widths live on the <th> cells, so hiding a column
+   here also releases its width under table-layout:fixed - a <colgroup> would
+   keep reserving it. Nothing is lost: every field is in the expanded row. */
+@media (max-width: 1149px) { .c-mod  { display: none; } }
+@media (max-width:  979px) { .c-rw   { display: none; } }
+@media (max-width:  819px) { .c-rule { display: none; } }
+@media (max-width:  559px) { .c-size { display: none; } }
+
+td.c-rule .rule {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--fg-dim);
+  display: block;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+td.c-size { font-family: var(--mono); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+td.c-mod  { font-family: var(--mono); color: var(--fg-faint); font-size: 11.5px; white-space: nowrap; }
+
+td.c-path { min-width: 0; }
+.pathline {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pathline .dir { color: var(--fg-faint); }
+.pathline .base { color: var(--fg); font-weight: 600; }
+
+/* the directory portion is a real <a href="file://..."> "open folder" link */
+.dirlink {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 4px;
+  outline-offset: 2px;
+}
+.dirlink .fico {
+  width: 12px; height: 12px;
+  margin-right: 5px;
+  vertical-align: -1px;
+  opacity: .5;
+  color: var(--fg-faint);
+}
+.dirlink:hover .dir, .dirlink:hover .base,
+.dirlink:focus-visible .dir, .dirlink:focus-visible .base {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.dirlink:hover .fico, .dirlink:focus-visible .fico { opacity: 1; color: var(--accent); }
+.dirlink:focus-visible { outline: 2px solid var(--accent); }
+.subline {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--fg-faint);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.subline code {
+  font-family: var(--mono);
+  background: var(--panel-3);
+  border-radius: 4px;
+  padding: 0 5px;
+  color: var(--fg-dim);
+}
+
+/* triage chip */
+.chip {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+.chip.t-Black  { color: var(--tri-black-fg); background: var(--tri-black-bg); border-color: var(--tri-black-ln); box-shadow: var(--tri-black-glow); }
+.chip.t-Red    { color: var(--tri-red-fg);    background: var(--tri-red-bg);    border-color: var(--tri-red-ln); }
+.chip.t-Yellow { color: var(--tri-yellow-fg); background: var(--tri-yellow-bg); border-color: var(--tri-yellow-ln); }
+.chip.t-Green  { color: var(--tri-green-fg);  background: var(--tri-green-bg);  border-color: var(--tri-green-ln); }
+.chip.t-Gray   { color: var(--tri-gray-fg);   background: var(--tri-gray-bg);   border-color: var(--tri-gray-ln); }
+
+/* rw pill */
+.rw {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--fg-dim);
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  border-radius: 5px;
+  padding: 1px 7px;
+}
+.rw.w { color: var(--tri-yellow-fg); border-color: var(--tri-yellow-ln); background: var(--tri-yellow-bg); }
+.rw.none { color: var(--fg-faint); opacity: .6; }
+
+/* expander caret */
+.exp {
+  display: inline-block;
+  width: 0; height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  color: var(--fg-faint);
+  margin-right: 8px;
+  transform: translateY(-1px);
+  transition: transform .14s ease;
+  flex: none;
+}
+tr.row.open .exp { transform: rotate(90deg) translateX(-1px); color: var(--accent); }
+
+/* ---------- detail row ---------- */
+
+tr.detail > td {
+  padding: 0 14px 16px;
+  background: var(--sel);
+  border-bottom: 1px solid var(--line);
+}
+.detail-box {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--panel);
+  overflow: hidden;
+}
+.detail-head {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--panel-2);
+}
+.detail-head .full {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--fg);
+  word-break: break-all;
+  flex: 1 1 380px;
+  min-width: 0;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px 20px;
+  padding: 12px;
+}
+.dfield .dk {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--fg-faint); font-weight: 700; margin-bottom: 3px;
+}
+.dfield .dv {
+  font-family: var(--mono); font-size: 12px; color: var(--fg-dim); word-break: break-all;
+}
+.dfield .dv.hl { color: var(--tri-yellow-fg); }
+
+.ctx-label {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px 6px;
+  font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--fg-faint); font-weight: 700;
+}
+pre.ctx {
+  margin: 0 12px 12px;
+  padding: 12px 13px;
+  background: var(--panel-2);
+  border: 1px solid var(--line-soft);
+  border-left: 3px solid var(--tri-yellow-ln);
+  border-radius: var(--r-sm);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--fg);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  max-height: 460px;
+  overflow: auto;
+  tab-size: 4;
+}
+pre.ctx mark {
+  background: var(--tri-yellow-bg);
+  color: var(--tri-yellow-fg);
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 600;
+}
+.ctx-none {
+  margin: 0 12px 12px;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-sm);
+  color: var(--fg-faint);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* ---------- footer of table ---------- */
+
+.tfoot {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-3);
+  padding: 14px;
+  border-top: 1px solid var(--line-soft);
+  color: var(--fg-faint);
+  font-size: 12px;
+  font-family: var(--mono);
+}
+.tfoot[hidden] { display: none; }
+
+/* ---------- empty state ---------- */
+
+.empty {
+  padding: 72px 24px;
+  text-align: center;
+}
+.empty .glyph {
+  width: 54px; height: 54px;
+  margin: 0 auto 16px;
+  border-radius: 14px;
+  border: 1px dashed var(--line-strong);
+  display: grid; place-items: center;
+  color: var(--fg-faint);
+}
+.empty .glyph svg { width: 22px; height: 22px; }
+.empty h3 { margin: 0 0 6px; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.empty p { margin: 0 0 18px; color: var(--fg-dim); font-size: 13px; }
+
+/* ---------- toast ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translate(-50%, 16px);
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  color: var(--fg);
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-size: 12.5px;
+  font-weight: 550;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+  z-index: 200;
+  display: flex; align-items: center; gap: 8px;
+  max-width: 88vw;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast .ok { color: var(--tri-green-fg); }
+
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+footer.pagefoot {
+  margin-top: var(--sp-5);
+  color: var(--fg-faint);
+  font-size: 11.5px;
+  display: flex; gap: var(--sp-3); flex-wrap: wrap; justify-content: space-between;
+  font-family: var(--mono);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 1100px) {
+  .meta { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+}
+@media (max-width: 900px) {
+  .wrap { padding: 0 var(--sp-3) 72px; }
+  header.top { padding-top: var(--sp-5); }
+  .tiles { grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); }
+  .tile .n { font-size: 24px; }
+  .search { max-width: none; flex-basis: 100%; }
+  .ms > .btn { min-width: 0; }
+  .ms-panel { width: min(340px, 90vw); }
+}
+@media (max-width: 620px) {
+  .toolbar { position: static; }
+  thead, thead th { top: 0; }
+  h1 { font-size: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+@media print {
+  .toolbar, .top-actions, .tfoot, .toast { display: none !important; }
+  body { background: #fff; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div>
+        <h1>Snaffler <span class="dim">/ share findings report</span></h1>
+        <p class="tagline" id="tagline">SMB share credential hunt</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="btn-csv" title="Download the currently filtered rows as CSV">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5v8.5m0 0 3-3m-3 3-3-3"/><path d="M2 11v2.5h12V11"/></svg>
+        CSV
+      </button>
+      <button class="btn" id="btn-json" title="Download the currently filtered rows as JSON">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5v8.5m0 0 3-3m-3 3-3-3"/><path d="M2 11v2.5h12V11"/></svg>
+        JSON
+      </button>
+      <button class="btn ghost" id="btn-theme" title="Toggle light / dark theme" aria-label="Toggle theme">
+        <svg id="theme-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 9.3A5.8 5.8 0 0 1 6.7 2.5 5.8 5.8 0 1 0 13.5 9.3Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="meta" id="meta" aria-label="Scan metadata"></section>
+
+  <div class="tiles-head">
+    <h2 class="section-title">Triage</h2>
+    <span class="hint">click a tile to filter &mdash; several can be active at once</span>
+  </div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="toolbar" id="toolbar">
+    <div class="tabs" role="tablist" aria-label="Result type">
+      <button class="tab" role="tab" id="tab-files"  data-tab="files"  aria-selected="true"  aria-controls="pane">Files <span class="badge" id="badge-files">0</span></button>
+      <button class="tab" role="tab" id="tab-shares" data-tab="shares" aria-selected="false" aria-controls="pane">Shares <span class="badge" id="badge-shares">0</span></button>
+      <button class="tab" role="tab" id="tab-dirs"   data-tab="dirs"   aria-selected="false" aria-controls="pane">Directories <span class="badge" id="badge-dirs">0</span></button>
+    </div>
+
+    <div class="filters">
+      <div class="search">
+        <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="m10.6 10.6 3.2 3.2"/></svg>
+        <input type="search" id="q" placeholder="Search path, rule, match, context&hellip;" autocomplete="off" spellcheck="false" aria-label="Search">
+        <span class="kbd"><kbd>/</kbd></span>
+      </div>
+
+      <div class="ms" id="ms-share"></div>
+      <div class="ms" id="ms-host"></div>
+      <div class="ms" id="ms-rule"></div>
+      <div class="ms" id="ms-ext"></div>
+
+      <button class="btn ghost danger-ghost" id="btn-clear">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        Clear all filters
+      </button>
+
+      <span class="spacer"></span>
+      <span class="count-pill" id="showing" aria-live="polite">&nbsp;</span>
+    </div>
+  </div>
+
+  <div class="activebar" id="activebar"></div>
+
+  <div class="panel">
+    <table id="pane" role="tabpanel" aria-labelledby="tab-files">
+      <thead><tr id="hrow"></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="empty" id="empty" hidden>
+      <div class="glyph">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 4.1 4.1"/><path d="M8 10.5h5"/></svg>
+      </div>
+      <h3>No results match these filters</h3>
+      <p id="empty-sub">Try widening the triage selection or clearing the search term.</p>
+      <button class="btn" id="btn-clear2">Clear all filters</button>
+    </div>
+    <div class="tfoot" id="tfoot" hidden><span id="tfoot-msg"></span></div>
+  </div>
+
+  <footer class="pagefoot">
+    <span id="foot-left">Snaffler report</span>
+    <span id="foot-right"></span>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const SNAFFLER_DATA = {"meta": {"generated": "2024-11-18 09:47:03Z", "user": "CORP\\svc_audit", "host": "auditbox", "command": "snaffler.py -s -P -d corp.local -c dc01.corp.local --user svc_audit --html corp-shares.html", "startTime": "2024-11-18 09:40:00Z", "endTime": "2024-11-18 09:47:03Z", "duration": "00:07:03", "counts": {"Black": 5, "Red": 13, "Yellow": 4, "Green": 2, "Gray": 0}, "fileCount": 24, "shareCount": 7, "dirCount": 2}, "files": [{"triage": "Black", "rule": "KeepSecretsPlusBlack", "path": "\\\\DC01\\SYSVOL\\corp.local\\Policies\\{31B2F340-016D-11D2-945F-00C04FB984F9}\\MACHINE\\Preferences\\Groups\\Groups.xml", "host": "DC01", "share": "\\\\DC01\\SYSVOL", "name": "Groups.xml", "ext": ".xml", "size": 412, "sizeHuman": "412B", "modified": "2019-03-04 14:22:08Z", "rw": "R", "matched": "cpassword\\s*=\\s*(?:&quot;|\"|\\x27)?[A-Za-z0-9+/=]{5,}", "context": "<User name=\"Administrator\"><Properties action=\"U\" newName=\"\" fullName=\"\" description=\"\" cpassword=\"j1Uyj3Vx8TY9LtLZil2uAuZkFQA/4latT76ZwgdHdhw\" changeLogon=\"0\"", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Black", "rule": "KeepSecretsPlusBlack", "path": "\\\\FS01\\Deploy$\\gcp\\prod-deployer-sa.json", "host": "FS01", "share": "\\\\FS01\\Deploy$", "name": "prod-deployer-sa.json", "ext": ".json", "size": 2314, "sizeHuman": "2.3kB", "modified": "2024-06-12 11:03:55Z", "rw": "R", "matched": "\"private_key\"\\s*:\\s*\"-----BEGIN (?:RSA )?PRIVATE KEY-----", "context": "{ \"type\": \"service_account\", \"project_id\": \"corp-prod-1421\",\\n  \"private_key\": \"-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhki...\\n-----END PRIVATE KEY-----\\n\"", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Black", "rule": "KeepSSHKeysByFileName", "path": "\\\\FS02\\Profiles$\\jhalloran\\.ssh\\id_rsa", "host": "FS02", "share": "\\\\FS02\\Profiles$", "name": "id_rsa", "ext": "", "size": 1876, "sizeHuman": "1.8kB", "modified": "2023-09-30 08:14:02Z", "rw": "R", "matched": "^id_rsa$", "context": "id_rsa", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Black", "rule": "KeepPassMgrsByExtension", "path": "\\\\FS01\\Backups$\\it-team\\vault-backup.kdbx", "host": "FS01", "share": "\\\\FS01\\Backups$", "name": "vault-backup.kdbx", "ext": ".kdbx", "size": 3145728, "sizeHuman": "3MB", "modified": "2024-10-01 22:00:14Z", "rw": "R", "matched": "^\\.kdbx$", "context": ".kdbx", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Black", "rule": "KeepNixLocalHashesByName", "path": "\\\\FS02\\Linux$\\provisioning\\shadow", "host": "FS02", "share": "\\\\FS02\\Linux$", "name": "shadow", "ext": "", "size": 1204, "sizeHuman": "1.2kB", "modified": "2024-02-19 17:41:20Z", "rw": "R", "matched": "^shadow$", "context": "shadow", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepSecretsPlusRed", "path": "\\\\FS01\\WebApps$\\billing\\.env", "host": "FS01", "share": "\\\\FS01\\WebApps$", "name": ".env", "ext": ".env", "size": 612, "sizeHuman": "612B", "modified": "2024-11-02 10:12:44Z", "rw": "R", "matched": "ghp_[0-9A-Za-z]{36}", "context": "DATABASE_URL=postgres://billing:S3cr3tDbP@ss@sql01.corp.local:5432/prod\\nGITHUB_TOKEN=ghp_R2d8xKq0Lm4Nv7Bt1Ws6Yc3Ze9Ah5Uj2Ik\\nSTRIPE_KEY=sk_live_51H8xQwAbCdEfGhIjKlMnOpQr", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepSecretsPlusRed", "path": "\\\\FS01\\IT$\\azure\\storage.config", "host": "FS01", "share": "\\\\FS01\\IT$", "name": "storage.config", "ext": ".config", "size": 520, "sizeHuman": "520B", "modified": "2024-08-21 13:37:09Z", "rw": "R", "matched": "AccountKey=[A-Za-z0-9+/]{86}==", "context": "<add key=\"BlobStore\" value=\"DefaultEndpointsProtocol=https;AccountName=corpprodsa;AccountKey=q1W2e3R4t5Y6u7I8o9P0aSdFgHjKlZxCvBnMqWeRtYuIoPaSdFgHjKlZxCvBnMqWeRtYuIoPaSdFgH==\" />", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepSecretsPlusRed", "path": "\\\\FS02\\Ansible$\\group_vars\\all\\vault.yml", "host": "FS02", "share": "\\\\FS02\\Ansible$", "name": "vault.yml", "ext": ".yml", "size": 1420, "sizeHuman": "1.4kB", "modified": "2024-07-15 09:55:31Z", "rw": "R", "matched": "\\$ANSIBLE_VAULT;[0-9]\\.[0-9];AES256", "context": "$ANSIBLE_VAULT;1.1;AES256\\n39303864613...66663261", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepTerraformState", "path": "\\\\FS01\\Deploy$\\terraform\\prod\\terraform.tfstate", "host": "FS01", "share": "\\\\FS01\\Deploy$", "name": "terraform.tfstate", "ext": ".tfstate", "size": 88420, "sizeHuman": "86.3kB", "modified": "2024-11-10 16:20:03Z", "rw": "R", "matched": "^\\.tfstate$", "context": ".tfstate", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepKubeconfigByName", "path": "\\\\FS02\\Profiles$\\dvega\\.kube\\kubeconfig", "host": "FS02", "share": "\\\\FS02\\Profiles$", "name": "kubeconfig", "ext": "", "size": 3980, "sizeHuman": "3.9kB", "modified": "2024-10-28 12:01:47Z", "rw": "R", "matched": "^kubeconfig$", "context": "kubeconfig", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepSecretsPlusRed", "path": "\\\\SQL01\\Install$\\deploy\\provision.ps1", "host": "SQL01", "share": "\\\\SQL01\\Install$", "name": "provision.ps1", "ext": ".ps1", "size": 2210, "sizeHuman": "2.2kB", "modified": "2024-05-06 15:44:18Z", "rw": "R", "matched": "ConvertTo-SecureString\\b.{0,80}(?:-AsPlainText|-Key)", "context": "$sec = ConvertTo-SecureString \"W1nter2024!\" -AsPlainText -Force\\n$cred = New-Object System.Management.Automation.PSCredential(\"CORP\\\\svc_sql\",$sec)", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepCmdCredentials", "path": "\\\\FS01\\IT$\\scripts\\map-drives.bat", "host": "FS01", "share": "\\\\FS01\\IT$", "name": "map-drives.bat", "ext": ".bat", "size": 340, "sizeHuman": "340B", "modified": "2023-12-11 08:30:00Z", "rw": "R", "matched": "net use .{0,300} /user:", "context": "net use \\\\FS01\\Backups$ /user:CORP\\svc_backup Backup!Winter24", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepDbConnStringPw", "path": "\\\\FS01\\WebApps$\\intranet\\web.config", "host": "FS01", "share": "\\\\FS01\\WebApps$", "name": "web.config", "ext": ".config", "size": 4096, "sizeHuman": "4kB", "modified": "2024-09-19 11:22:33Z", "rw": "R", "matched": "connectionString=.{0,200}password\\s*=", "context": "<add name=\"Main\" connectionString=\"Server=sql01;Database=intranet;User Id=sa;Password=Sup3rS3cret2024;\" />", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepWpConfigByName", "path": "\\\\FS01\\WebApps$\\blog\\wp-config.php", "host": "FS01", "share": "\\\\FS01\\WebApps$", "name": "wp-config.php", "ext": ".php", "size": 3210, "sizeHuman": "3.1kB", "modified": "2024-03-25 14:09:51Z", "rw": "R", "matched": "^wp-config\\.php$", "context": "wp-config.php", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepInlinePrivateKey", "path": "\\\\FS02\\Profiles$\\rkhan\\keys\\deploy.pem", "host": "FS02", "share": "\\\\FS02\\Profiles$", "name": "deploy.pem", "ext": ".pem", "size": 1704, "sizeHuman": "1.7kB", "modified": "2024-01-30 10:15:22Z", "rw": "R", "matched": "-----BEGIN( RSA| OPENSSH| DSA| EC| PGP)? PRIVATE KEY( BLOCK)?-----", "context": "-----BEGIN RSA PRIVATE KEY-----\\nMIIEpAIBAAKCAQEA0Zx...truncated...\\n-----END RSA PRIVATE KEY-----", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepRdpPasswords", "path": "\\\\FS01\\IT$\\jump\\prod-jump.rdp", "host": "FS01", "share": "\\\\FS01\\IT$", "name": "prod-jump.rdp", "ext": ".rdp", "size": 820, "sizeHuman": "820B", "modified": "2024-06-01 09:00:12Z", "rw": "R", "matched": "password 51:b:", "context": "prod-jump.rdp", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepFtpServerConfigByName", "path": "\\\\FS02\\Transfer$\\config\\filezilla.xml", "host": "FS02", "share": "\\\\FS02\\Transfer$", "name": "filezilla.xml", "ext": ".xml", "size": 1560, "sizeHuman": "1.5kB", "modified": "2023-11-08 16:45:39Z", "rw": "R", "matched": "^filezilla\\.xml$", "context": "filezilla.xml", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Red", "rule": "KeepSecretsPlusRed", "path": "\\\\SQL01\\Backups$\\jenkins\\credentials.xml", "host": "SQL01", "share": "\\\\SQL01\\Backups$", "name": "credentials.xml", "ext": ".xml", "size": 6220, "sizeHuman": "6.1kB", "modified": "2024-04-14 03:12:00Z", "rw": "R", "matched": "glpat-[0-9A-Za-z_\\-]{20}", "context": "<apiToken>glpat-xR4tYu7Iq0Lm4Nv7Bt1Ws<\/apiToken>", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Yellow", "rule": "KeepSecretsPlusYellow", "path": "\\\\FS02\\Profiles$\\amorgan\\notes\\api-notes.txt", "host": "FS02", "share": "\\\\FS02\\Profiles$", "name": "api-notes.txt", "ext": ".txt", "size": 480, "sizeHuman": "480B", "modified": "2024-10-05 13:20:41Z", "rw": "R", "matched": "eyJ[A-Za-z0-9_\\-]{10,}\\.eyJ[A-Za-z0-9_\\-]{10,}\\.[A-Za-z0-9_\\-]{10,}", "context": "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdmNfYXBpIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Yellow", "rule": "KeepDeployImageByExtension", "path": "\\\\FS01\\Images$\\vm-templates\\dc-gold.ova", "host": "FS01", "share": "\\\\FS01\\Images$", "name": "dc-gold.ova", "ext": ".ova", "size": 4294967296, "sizeHuman": "4GB", "modified": "2024-08-30 20:11:00Z", "rw": "R", "matched": "^\\.ova$", "context": ".ova", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Yellow", "rule": "KeepDatabaseByExtension", "path": "\\\\SQL01\\Dumps$\\nightly\\intranet.sqldump", "host": "SQL01", "share": "\\\\SQL01\\Dumps$", "name": "intranet.sqldump", "ext": ".sqldump", "size": 52428800, "sizeHuman": "50MB", "modified": "2024-11-17 02:30:00Z", "rw": "R", "matched": "^\\.sqldump$", "context": ".sqldump", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Yellow", "rule": "KeepPcapByExtension", "path": "\\\\FS02\\Transfer$\\captures\\core-switch.pcap", "host": "FS02", "share": "\\\\FS02\\Transfer$", "name": "core-switch.pcap", "ext": ".pcap", "size": 10485760, "sizeHuman": "10MB", "modified": "2024-07-22 18:03:14Z", "rw": "R", "matched": "^\\.pcap$", "context": ".pcap", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Green", "rule": "KeepShellRcFilesByName", "path": "\\\\FS02\\Profiles$\\jhalloran\\.bashrc", "host": "FS02", "share": "\\\\FS02\\Profiles$", "name": ".bashrc", "ext": ".bashrc", "size": 3120, "sizeHuman": "3kB", "modified": "2023-06-14 09:00:00Z", "rw": "R", "matched": "^\\.bashrc$", "context": ".bashrc", "altName": null, "ts": "2024-11-18 09:42:11Z"}, {"triage": "Green", "rule": "KeepNameContainsGreen", "path": "\\\\FS01\\IT$\\docs\\password-policy.docx", "host": "FS01", "share": "\\\\FS01\\IT$", "name": "password-policy.docx", "ext": ".docx", "size": 18400, "sizeHuman": "18kB", "modified": "2024-02-01 10:00:00Z", "rw": "R", "matched": "passw", "context": "password-policy.docx", "altName": null, "ts": "2024-11-18 09:42:11Z"}], "shares": [{"triage": "Green", "path": "\\\\DC01\\SYSVOL", "host": "DC01", "rw": "R", "comment": "Logon server share", "ts": "2024-11-18 09:40:02Z"}, {"triage": "Green", "path": "\\\\DC01\\NETLOGON", "host": "DC01", "rw": "R", "comment": "Logon server share", "ts": "2024-11-18 09:40:02Z"}, {"triage": "Black", "path": "\\\\FS01\\C$", "host": "FS01", "rw": "R", "comment": "Default share", "ts": "2024-11-18 09:40:05Z"}, {"triage": "Green", "path": "\\\\FS01\\Finance$", "host": "FS01", "rw": "R", "comment": "", "ts": "2024-11-18 09:40:06Z"}, {"triage": "Green", "path": "\\\\FS01\\WebApps$", "host": "FS01", "rw": "R", "comment": "", "ts": "2024-11-18 09:40:06Z"}, {"triage": "Green", "path": "\\\\FS02\\Profiles$", "host": "FS02", "rw": "R", "comment": "User profiles", "ts": "2024-11-18 09:40:11Z"}, {"triage": "Black", "path": "\\\\SQL01\\ADMIN$", "host": "SQL01", "rw": "R", "comment": "Remote Admin", "ts": "2024-11-18 09:40:19Z"}], "dirs": [{"triage": "Yellow", "path": "\\\\FS01\\WebApps$\\billing", "ts": "2024-11-18 09:41:30Z"}, {"triage": "Yellow", "path": "\\\\FS02\\Ansible$\\group_vars", "ts": "2024-11-18 09:41:52Z"}]};
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------ *
+   * Data
+   * ------------------------------------------------------------------ */
+
+  const DATA = SNAFFLER_DATA || {meta:{}, files:[], shares:[], dirs:[]};
+
+  const META   = DATA.meta   || {};
+  const FILES  = Array.isArray(DATA.files)  ? DATA.files  : [];
+  const SHARES = Array.isArray(DATA.shares) ? DATA.shares : [];
+  const DIRS   = Array.isArray(DATA.dirs)   ? DATA.dirs   : [];
+
+  const TRIAGES  = ["Black", "Red", "Yellow", "Green", "Gray"];
+  const SEVERITY = {Black: 0, Red: 1, Yellow: 2, Green: 3, Gray: 4};
+  const TRI_VAR  = {
+    Black:  {c: "var(--tri-black-ln)", bg: "var(--tri-black-bg)"},
+    Red:    {c: "var(--tri-red)",      bg: "var(--tri-red-bg)"},
+    Yellow: {c: "var(--tri-yellow)",   bg: "var(--tri-yellow-bg)"},
+    Green:  {c: "var(--tri-green)",    bg: "var(--tri-green-bg)"},
+    Gray:   {c: "var(--tri-gray)",     bg: "var(--tri-gray-bg)"}
+  };
+
+  const CHUNK = 300;
+
+  /* ------------------------------------------------------------------ *
+   * Small helpers
+   * ------------------------------------------------------------------ */
+
+  const $  = (s, r) => (r || document).querySelector(s);
+  const el = (t, c) => { const n = document.createElement(t); if (c) n.className = c; return n; };
+
+  function esc(v) {
+    if (v === null || v === undefined) return "";
+    return String(v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function nfmt(n) {
+    if (typeof n !== "number" || !isFinite(n)) return "0";
+    return n.toLocaleString("en-US");
+  }
+
+  function humanSize(bytes) {
+    if (typeof bytes !== "number" || !isFinite(bytes) || bytes < 0) return "";
+    if (bytes < 1024) return bytes + " B";
+    const u = ["kB", "MB", "GB", "TB", "PB"];
+    let v = bytes / 1024, i = 0;
+    while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+    return (v >= 100 ? v.toFixed(0) : v.toFixed(1)) + " " + u[i];
+  }
+
+  /* Split "\\HOST\Share\a\b\c.txt" into host, share root, dir part, basename */
+  function splitUnc(p) {
+    const s = String(p || "");
+    const out = {host: "", share: "", dir: s, base: ""};
+    const i = s.lastIndexOf("\\");
+    if (i >= 0) { out.dir = s.slice(0, i + 1); out.base = s.slice(i + 1); }
+    else { out.dir = ""; out.base = s; }
+    const m = /^\\\\([^\\]+)\\([^\\]+)/.exec(s);
+    if (m) { out.host = m[1]; out.share = "\\\\" + m[1] + "\\" + m[2]; }
+    return out;
+  }
+
+  function extOf(name) {
+    const n = String(name || "");
+    const i = n.lastIndexOf(".");
+    if (i <= 0 || i === n.length - 1) return "";
+    const e = n.slice(i).toLowerCase();
+    return /^\.[a-z0-9_+-]{1,12}$/.test(e) ? e : "";
+  }
+
+  /* ---- "open containing folder" path handling ------------------------ *
+   * parentFolder("\\FS01\WebApps$\billing\.env")  -> "\\FS01\WebApps$\billing"
+   * Handles \ (UNC) and / (local) separators. Edge cases:
+   *   - trailing separators / a path that is already a folder: the last
+   *     segment is NOT stripped, only the trailing separators are trimmed.
+   *   - a bare UNC share root ("\\HOST\share", host+share only): returned
+   *     whole (its parent would be just the host, which is useless).
+   *   - no separator at all: returned whole.
+   */
+  function stripTrailingSep(s) { return String(s || "").replace(/[\\/]+$/, ""); }
+
+  function parentFolder(path) {
+    const orig = String(path || "");
+    if (!orig) return orig;
+    const hadTrailing = /[\\/]$/.test(orig);
+    const t = stripTrailingSep(orig);
+    if (!t) return orig;
+    if (hadTrailing) return t;              /* already a folder boundary */
+    if (/^\\\\/.test(t) || /^\/\//.test(t)) {   /* UNC \\HOST\share\... */
+      const parts = t.replace(/^[\\/]+/, "").split(/[\\/]+/).filter(Boolean);
+      if (parts.length <= 2) return t;      /* bare share root -> whole */
+      parts.pop();
+      return "\\\\" + parts.join("\\");
+    }
+    const lead = /^[\\/]/.test(t) ? t.charAt(0) : "";
+    const sep = t.indexOf("\\") >= 0 ? "\\" : "/";
+    const parts = t.split(/[\\/]+/).filter(Boolean);
+    if (parts.length <= 1) return t;        /* no real parent -> whole */
+    parts.pop();
+    return lead + parts.join(sep);
+  }
+
+  /* The folder to open for a given result row (native path form). */
+  function folderToOpen(r) {
+    const p = String(r.path || "");
+    /* shares / dirs ARE folders: the path itself, only trim trailing seps */
+    if (r._k === "shares" || r._k === "dirs") return stripTrailingSep(p) || p;
+    return parentFolder(p);
+  }
+
+  /* Native folder path -> file:// URL, per-segment encoded, "/" separators.
+   *   \\HOST\share\dir  -> file://HOST/share/dir
+   *   /mnt/share/dir    -> file:///mnt/share/dir
+   */
+  function folderUrl(folder) {
+    const f = String(folder || "");
+    if (!f) return "";
+    if (/^\\\\/.test(f) || /^\/\//.test(f)) {
+      const parts = f.replace(/^[\\/]+/, "").split(/[\\/]+/).filter(Boolean);
+      if (!parts.length) return "";
+      const host = encodeURIComponent(parts.shift());
+      return "file://" + host + (parts.length ? "/" + parts.map(encodeURIComponent).join("/") : "");
+    }
+    const parts = f.split(/[\\/]+/).filter(Boolean);
+    return "file:///" + parts.map(encodeURIComponent).join("/");
+  }
+
+  const FOLDER_ICON = '<svg class="fico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M1.8 4.6c0-.7.5-1.2 1.2-1.2h2.7l1.4 1.5h5.9c.7 0 1.2.5 1.2 1.2v5.5c0 .7-.5 1.2-1.2 1.2H3c-.7 0-1.2-.5-1.2-1.2z"/></svg>';
+  const FOLDER_ICON_BTN = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M1.8 4.6c0-.7.5-1.2 1.2-1.2h2.7l1.4 1.5h5.9c.7 0 1.2.5 1.2 1.2v5.5c0 .7-.5 1.2-1.2 1.2H3c-.7 0-1.2-.5-1.2-1.2z"/></svg>';
+
+  /* Attributes shared by every folder <a>: real href (best-effort open) plus
+   * the native path for the guaranteed clipboard fallback. */
+  function folderAttrs(folder, extraClass) {
+    const url = folderUrl(folder);
+    return ' class="' + (extraClass || "") + '"' +
+           (url ? ' href="' + esc(url) + '"' : "") +
+           ' target="_blank" rel="noopener"' +
+           ' data-folder="' + esc(folder) + '"' +
+           ' title="Open folder \u2014 ' + esc(folder) + '"';
+  }
+
+  function triageOf(r) {
+    const t = r && r.triage;
+    return TRIAGES.indexOf(t) >= 0 ? t : "Gray";
+  }
+
+  function debounce(fn, ms) {
+    let t = 0;
+    return function () {
+      const a = arguments, self = this;
+      clearTimeout(t);
+      t = setTimeout(function () { fn.apply(self, a); }, ms);
+    };
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Normalise rows (derive host / share / ext / search blob)
+   * ------------------------------------------------------------------ */
+
+  function prep(rows, kind) {
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      r._k = kind;
+      r._i = i;
+      r._t = triageOf(r);
+      r._sev = SEVERITY[r._t];
+
+      const path = r.path || "";
+      const parts = splitUnc(path);
+      r._base = r.name || parts.base || path;
+      r._host  = r.host  || parts.host || "";
+      r._share = r.share || (kind === "shares" ? path : parts.share) || "";
+      r._ext   = (r.ext || extOf(r._base) || "").toLowerCase();
+      r._size  = typeof r.size === "number" ? r.size : -1;
+      r._rule  = r.rule || "";
+      r._mod   = r.modified || "";
+      r._rw    = r.rw === undefined || r.rw === null ? "" : String(r.rw);
+      r._blob  = null;
+    }
+    return rows;
+  }
+
+  function blobOf(r) {
+    if (r._blob === null) {
+      r._blob = [
+        r.path, r._rule, r.matched, r.context, r._base, r.altName, r.comment, r._host
+      ].filter(Boolean).join("\u0001").toLowerCase();
+    }
+    return r._blob;
+  }
+
+  prep(FILES, "files");
+  prep(SHARES, "shares");
+  prep(DIRS, "dirs");
+
+  /* ------------------------------------------------------------------ *
+   * Tab definitions
+   * ------------------------------------------------------------------ */
+
+  /* Column `cls` doubles as the responsive hook: the stylesheet hides
+     .c-mod / .c-rw / .c-rule / .c-size at successively narrower viewports, so
+     the table never needs to scroll horizontally (which would break the
+     sticky header). `w` is emitted on the <th>, which is where
+     table-layout:fixed takes column widths from. */
+  const TABS = {
+    files: {
+      rows: FILES,
+      facets: ["share", "host", "rule", "ext"],
+      cols: [
+        {key: "triage", label: "Triage", cls: "c-triage", sortable: true, w: "108px"},
+        {key: "rule",   label: "Rule",   cls: "c-rule",   sortable: true, w: "210px"},
+        {key: "path",   label: "Path",   cls: "c-path",   sortable: true, w: ""},
+        {key: "size",   label: "Size",   cls: "c-size",   sortable: true, w: "96px"},
+        {key: "mod",    label: "Modified", cls: "c-mod",  sortable: true, w: "178px"},
+        {key: "rw",     label: "R/W",   cls: "c-rw",      sortable: true, w: "74px"}
+      ],
+      sort: {key: "triage", dir: 1}
+    },
+    shares: {
+      rows: SHARES,
+      facets: ["share", "host"],
+      cols: [
+        {key: "triage", label: "Triage",  cls: "c-triage", sortable: true, w: "108px"},
+        {key: "path",   label: "Share",   cls: "c-path",   sortable: true, w: ""},
+        {key: "host",   label: "Host",    cls: "c-rule",   sortable: true, w: "210px"},
+        {key: "comment",label: "Comment", cls: "c-mod",    sortable: true, w: "230px"},
+        {key: "rw",     label: "R/W",     cls: "c-rw",     sortable: true, w: "74px"}
+      ],
+      sort: {key: "triage", dir: 1}
+    },
+    dirs: {
+      rows: DIRS,
+      facets: ["share", "host"],
+      cols: [
+        {key: "triage", label: "Triage",    cls: "c-triage", sortable: true, w: "108px"},
+        {key: "path",   label: "Directory", cls: "c-path",   sortable: true, w: ""},
+        {key: "host",   label: "Host",      cls: "c-rule",   sortable: true, w: "210px"},
+        {key: "mod",    label: "Found",     cls: "c-mod",    sortable: true, w: "200px"}
+      ],
+      sort: {key: "triage", dir: 1}
+    }
+  };
+
+  /* ------------------------------------------------------------------ *
+   * Filter state
+   * ------------------------------------------------------------------ */
+
+  const state = {
+    tab: "files",
+    q: "",
+    triage: new Set(),
+    share: new Set(),
+    host: new Set(),
+    rule: new Set(),
+    ext: new Set()
+  };
+
+  const FACET_FIELD = {share: "_share", host: "_host", rule: "_rule", ext: "_ext"};
+  const FACET_LABEL = {share: "Share", host: "Host", rule: "Rule", ext: "Ext"};
+
+  /* Facet value lists, computed once per tab. */
+  const facetCache = {};
+  function facetValues(tab, facet) {
+    const ck = tab + "/" + facet;
+    if (facetCache[ck]) return facetCache[ck];
+    const f = FACET_FIELD[facet];
+    const m = new Map();
+    const rows = TABS[tab].rows;
+    for (let i = 0; i < rows.length; i++) {
+      const v = rows[i][f];
+      if (!v) continue;
+      m.set(v, (m.get(v) || 0) + 1);
+    }
+    const list = Array.from(m.entries())
+      .sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])))
+      .map(e => ({v: e[0], n: e[1]}));
+    facetCache[ck] = list;
+    return list;
+  }
+
+  function matches(r) {
+    if (state.triage.size && !state.triage.has(r._t)) return false;
+    if (state.share.size && !state.share.has(r._share)) return false;
+    if (state.host.size  && !state.host.has(r._host))  return false;
+    if (state.rule.size  && !state.rule.has(r._rule))  return false;
+    if (state.ext.size   && !state.ext.has(r._ext))    return false;
+    if (state.q && blobOf(r).indexOf(state.q) === -1) return false;
+    return true;
+  }
+
+  function sortRows(rows, tab) {
+    const s = TABS[tab].sort;
+    const d = s.dir;
+    const k = s.key;
+    const cmp = {
+      triage:  (a, b) => (a._sev - b._sev) || String(a.path).localeCompare(String(b.path)),
+      rule:    (a, b) => String(a._rule).localeCompare(String(b._rule)) || (a._sev - b._sev),
+      path:    (a, b) => String(a.path || "").localeCompare(String(b.path || "")),
+      size:    (a, b) => (a._size - b._size),
+      mod:     (a, b) => String(a._mod || a.ts || "").localeCompare(String(b._mod || b.ts || "")),
+      rw:      (a, b) => String(a._rw).length - String(b._rw).length || String(a._rw).localeCompare(String(b._rw)),
+      host:    (a, b) => String(a._host).localeCompare(String(b._host)) || (a._sev - b._sev),
+      comment: (a, b) => String(a.comment || "").localeCompare(String(b.comment || ""))
+    }[k] || ((a, b) => 0);
+    rows.sort((a, b) => d * cmp(a, b));
+    return rows;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * DOM refs
+   * ------------------------------------------------------------------ */
+
+  const elTbody   = $("#tbody");
+  const elHrow    = $("#hrow");
+  const elEmpty   = $("#empty");
+  const elEmptySub= $("#empty-sub");
+  const elTfoot   = $("#tfoot");
+  const elTfootMsg= $("#tfoot-msg");
+  const elShowing = $("#showing");
+  const elActive  = $("#activebar");
+  const elQ       = $("#q");
+  const elToast   = $("#toast");
+  const elToolbar = $("#toolbar");
+
+  let view = [];      /* currently filtered + sorted rows */
+  let rendered = 0;   /* how many of `view` are in the DOM */
+
+  /* ------------------------------------------------------------------ *
+   * Header / meta
+   * ------------------------------------------------------------------ */
+
+  function renderMeta() {
+    const cells = [];
+    const identity = [META.user, META.host].filter(Boolean).join(" @ ");
+    if (identity) cells.push(["Operator", identity]);
+    if (META.generated) cells.push(["Generated", META.generated]);
+    if (META.startTime) cells.push(["Start", META.startTime]);
+    if (META.endTime)   cells.push(["End", META.endTime]);
+    if (META.duration)  cells.push(["Duration", META.duration]);
+
+    const totals = [];
+    if (typeof META.fileCount  === "number") totals.push(nfmt(META.fileCount) + " files");
+    else if (FILES.length) totals.push(nfmt(FILES.length) + " files");
+    if (typeof META.shareCount === "number") totals.push(nfmt(META.shareCount) + " shares");
+    else if (SHARES.length) totals.push(nfmt(SHARES.length) + " shares");
+    if (typeof META.dirCount   === "number") totals.push(nfmt(META.dirCount) + " dirs");
+    else if (DIRS.length) totals.push(nfmt(DIRS.length) + " dirs");
+    if (totals.length) cells.push(["Results", totals.join(" \u00b7 ")]);
+
+    let html = cells.map(c =>
+      '<div class="cell"><div class="k">' + esc(c[0]) + '</div><div class="v">' + esc(c[1]) + '</div></div>'
+    ).join("");
+
+    if (META.command) {
+      html += '<div class="cell wide"><div class="k">Command</div><div class="v">' + esc(META.command) + '</div></div>';
+    }
+    if (!html) {
+      html = '<div class="cell"><div class="k">Status</div><div class="v">No scan metadata supplied</div></div>';
+    }
+    $("#meta").innerHTML = html;
+
+    const tag = [];
+    if (identity) tag.push(identity);
+    if (META.generated) tag.push(META.generated);
+    $("#tagline").textContent = tag.length ? tag.join("  \u2022  ") : "SMB share credential hunt";
+
+    $("#foot-left").textContent = "Snaffler report" + (META.generated ? " \u2014 " + META.generated : "");
+    $("#foot-right").textContent = nfmt(FILES.length) + " file results \u00b7 " +
+      nfmt(SHARES.length) + " shares \u00b7 " + nfmt(DIRS.length) + " directories";
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Triage tiles
+   * ------------------------------------------------------------------ */
+
+  function triageCounts() {
+    const c = {};
+    TRIAGES.forEach(t => { c[t] = 0; });
+    const src = (META.counts && typeof META.counts === "object") ? META.counts : null;
+    if (src) {
+      let any = false;
+      TRIAGES.forEach(t => {
+        if (typeof src[t] === "number") { c[t] = src[t]; any = true; }
+      });
+      if (any) return c;
+    }
+    for (let i = 0; i < FILES.length; i++) c[FILES[i]._t]++;
+    return c;
+  }
+
+  function renderTiles() {
+    const counts = triageCounts();
+    const host = $("#tiles");
+    host.innerHTML = "";
+
+    TRIAGES.forEach(function (t) {
+      if (t === "Gray" && !counts[t]) return;
+      const b = el("button", "tile");
+      b.type = "button";
+      b.dataset.triage = t;
+      b.setAttribute("aria-pressed", "false");
+      b.style.setProperty("--tile-c", TRI_VAR[t].c);
+      b.style.setProperty("--tile-bg", TRI_VAR[t].bg);
+      b.innerHTML =
+        '<div class="n">' + nfmt(counts[t] || 0) + '</div>' +
+        '<div class="l"><span class="chip t-' + t + '">' + t + '</span>' +
+        '<span class="state">off</span></div>';
+      b.addEventListener("click", function () { toggleTriage(t); });
+      host.appendChild(b);
+    });
+
+    const extra = el("div", "tile plain");
+    extra.innerHTML =
+      '<div class="n">' + nfmt(SHARES.length) + ' <span style="font-size:13px;color:var(--fg-faint)">shares</span></div>' +
+      '<div class="l" style="color:var(--fg-faint)">' + nfmt(DIRS.length) + ' directories</div>';
+    host.appendChild(extra);
+
+    syncTiles();
+  }
+
+  function syncTiles() {
+    const tiles = document.querySelectorAll(".tile[data-triage]");
+    for (let i = 0; i < tiles.length; i++) {
+      const on = state.triage.has(tiles[i].dataset.triage);
+      tiles[i].setAttribute("aria-pressed", on ? "true" : "false");
+      const st = tiles[i].querySelector(".state");
+      if (st) st.textContent = on ? "on" : "off";
+    }
+  }
+
+  function toggleTriage(t) {
+    if (state.triage.has(t)) state.triage.delete(t); else state.triage.add(t);
+    syncTiles();
+    apply();
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Multi-select facet controls
+   * ------------------------------------------------------------------ */
+
+  const controls = {};
+
+  function buildFacet(facet) {
+    const root = $("#ms-" + facet);
+    if (!root) return;
+    root.innerHTML =
+      '<button type="button" class="btn" aria-haspopup="listbox" aria-expanded="false">' +
+        '<span class="lab">' + FACET_LABEL[facet] + '</span>' +
+        '<span class="cnt" hidden>0</span>' +
+        '<svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="m2 4 3 3 3-3"/></svg>' +
+      '</button>' +
+      '<div class="ms-panel" role="listbox">' +
+        '<div class="ms-search"><input type="search" placeholder="Filter ' + FACET_LABEL[facet].toLowerCase() + '&hellip;" spellcheck="false" autocomplete="off"></div>' +
+        '<div class="ms-list"></div>' +
+        '<div class="ms-foot">' +
+          '<span class="meta-c"></span>' +
+          '<span><button type="button" class="lnk" data-act="all">Select all</button>' +
+          '<button type="button" class="lnk" data-act="none">Clear</button></span>' +
+        '</div>' +
+      '</div>';
+
+    const btn   = root.querySelector(".btn");
+    const panel = root.querySelector(".ms-panel");
+    const list  = root.querySelector(".ms-list");
+    const find  = root.querySelector(".ms-search input");
+    const metaC = root.querySelector(".meta-c");
+
+    let built = false;
+
+    function build() {
+      const vals = facetValues(state.tab, facet);
+      if (!vals.length) {
+        list.innerHTML = '<div class="ms-empty">Nothing to filter on</div>';
+      } else {
+        let h = "";
+        for (let i = 0; i < vals.length; i++) {
+          const v = vals[i].v;
+          h += '<label class="ms-opt" data-v="' + esc(v) + '" data-s="' + esc(String(v).toLowerCase()) + '">' +
+                 '<input type="checkbox"' + (state[facet].has(v) ? " checked" : "") + '>' +
+                 '<span class="t" title="' + esc(v) + '">' + esc(v) + '</span>' +
+                 '<span class="c">' + nfmt(vals[i].n) + '</span>' +
+               '</label>';
+        }
+        list.innerHTML = h;
+      }
+      metaC.textContent = vals.length + " value" + (vals.length === 1 ? "" : "s");
+      built = true;
+    }
+
+    function open() {
+      closeAll(root);
+      if (!built) build();
+      root.classList.add("open");
+      btn.setAttribute("aria-expanded", "true");
+      /* keep the panel on screen */
+      panel.classList.remove("flip-right");
+      const r = panel.getBoundingClientRect();
+      if (r.right > window.innerWidth - 8) panel.classList.add("flip-right");
+      find.value = "";
+      filterOptions("");
+      setTimeout(function () { find.focus(); }, 0);
+    }
+    function close() {
+      root.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    }
+
+    function filterOptions(term) {
+      const t = String(term || "").toLowerCase();
+      const opts = list.querySelectorAll(".ms-opt");
+      let shown = 0;
+      for (let i = 0; i < opts.length; i++) {
+        const hit = !t || opts[i].dataset.s.indexOf(t) !== -1;
+        opts[i].classList.toggle("hidden", !hit);
+        if (hit) shown++;
+      }
+      if (opts.length) metaC.textContent = shown + " of " + opts.length;
+    }
+
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (root.classList.contains("open")) close(); else open();
+    });
+    panel.addEventListener("click", function (e) { e.stopPropagation(); });
+    find.addEventListener("input", function () { filterOptions(find.value); });
+    find.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { e.stopPropagation(); close(); btn.focus(); }
+    });
+
+    list.addEventListener("change", function (e) {
+      const opt = e.target.closest(".ms-opt");
+      if (!opt) return;
+      const v = opt.dataset.v;
+      if (e.target.checked) state[facet].add(v); else state[facet].delete(v);
+      syncFacet(facet);
+      apply();
+    });
+
+    root.querySelector('[data-act="all"]').addEventListener("click", function () {
+      const opts = list.querySelectorAll(".ms-opt:not(.hidden)");
+      for (let i = 0; i < opts.length; i++) {
+        state[facet].add(opts[i].dataset.v);
+        opts[i].querySelector("input").checked = true;
+      }
+      syncFacet(facet);
+      apply();
+    });
+    root.querySelector('[data-act="none"]').addEventListener("click", function () {
+      state[facet].clear();
+      const ins = list.querySelectorAll(".ms-opt input");
+      for (let i = 0; i < ins.length; i++) ins[i].checked = false;
+      syncFacet(facet);
+      apply();
+    });
+
+    controls[facet] = {
+      root: root, btn: btn, close: close,
+      rebuild: function () { built = false; if (root.classList.contains("open")) build(); },
+      sync: function () {
+        const n = state[facet].size;
+        const cnt = btn.querySelector(".cnt");
+        cnt.hidden = n === 0;
+        cnt.textContent = n;
+        root.classList.toggle("active", n > 0);
+        btn.querySelector(".lab").textContent =
+          n === 1 ? shortVal(Array.from(state[facet])[0]) : FACET_LABEL[facet];
+        if (built) {
+          const opts = list.querySelectorAll(".ms-opt");
+          for (let i = 0; i < opts.length; i++) {
+            opts[i].querySelector("input").checked = state[facet].has(opts[i].dataset.v);
+          }
+        }
+      },
+      setVisible: function (on) { root.style.display = on ? "" : "none"; }
+    };
+    controls[facet].sync();
+  }
+
+  function shortVal(v) {
+    const s = String(v || "");
+    return s.length > 22 ? "\u2026" + s.slice(-21) : s;
+  }
+
+  function syncFacet(f) { if (controls[f]) controls[f].sync(); }
+  function syncFacets() { Object.keys(controls).forEach(syncFacet); }
+
+  function closeAll(except) {
+    Object.keys(controls).forEach(function (f) {
+      if (controls[f].root !== except) controls[f].close();
+    });
+  }
+
+  document.addEventListener("click", function () { closeAll(null); });
+
+  /* ------------------------------------------------------------------ *
+   * Active-filter chips
+   * ------------------------------------------------------------------ */
+
+  function renderActiveChips() {
+    const chips = [];
+    Array.from(state.triage).sort((a, b) => SEVERITY[a] - SEVERITY[b]).forEach(function (t) {
+      chips.push({k: "triage", label: "Triage", v: t});
+    });
+    ["share", "host", "rule", "ext"].forEach(function (f) {
+      if (!isFacetActiveForTab(f)) return;
+      Array.from(state[f]).forEach(function (v) { chips.push({k: f, label: FACET_LABEL[f], v: v}); });
+    });
+    if (state.q) chips.push({k: "q", label: "Search", v: state.q});
+
+    if (!chips.length) { elActive.innerHTML = ""; return; }
+
+    elActive.innerHTML = chips.map(function (c) {
+      return '<span class="fchip"><span class="kk">' + esc(c.label) + '</span>' +
+             '<span class="vv" title="' + esc(c.v) + '">' + esc(c.v) + '</span>' +
+             '<button type="button" data-k="' + esc(c.k) + '" data-v="' + esc(c.v) + '" aria-label="Remove filter">&times;</button></span>';
+    }).join("");
+  }
+
+  elActive.addEventListener("click", function (e) {
+    const b = e.target.closest("button[data-k]");
+    if (!b) return;
+    const k = b.dataset.k, v = b.dataset.v;
+    if (k === "q") { elQ.value = ""; state.q = ""; }
+    else if (k === "triage") { state.triage.delete(v); syncTiles(); }
+    else { state[k].delete(v); syncFacet(k); }
+    apply();
+  });
+
+  function isFacetActiveForTab(f) {
+    return TABS[state.tab].facets.indexOf(f) !== -1;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Table head
+   * ------------------------------------------------------------------ */
+
+  function renderHead() {
+    const t = TABS[state.tab];
+    const cols = t.cols;
+    elHrow.innerHTML = cols.map(function (c) {
+      const isSort = t.sort.key === c.key;
+      const aria = !c.sortable ? "none" : (isSort ? (t.sort.dir === 1 ? "ascending" : "descending") : "none");
+      return '<th class="' + c.cls + (c.sortable ? " sortable" : "") + '"' +
+             (c.w ? ' style="width:' + c.w + '"' : '') +
+             ' data-key="' + c.key + '" aria-sort="' + aria + '"' +
+             (c.sortable ? ' tabindex="0" role="button"' : '') + '>' +
+             esc(c.label) + (c.sortable ? '<span class="arrow"></span>' : '') + '</th>';
+    }).join("");
+  }
+
+  elHrow.addEventListener("click", function (e) {
+    const th = e.target.closest("th.sortable");
+    if (th) doSort(th.dataset.key);
+  });
+  elHrow.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const th = e.target.closest("th.sortable");
+    if (th) { e.preventDefault(); doSort(th.dataset.key); }
+  });
+
+  function doSort(key) {
+    const t = TABS[state.tab];
+    if (t.sort.key === key) t.sort.dir = -t.sort.dir;
+    else { t.sort.key = key; t.sort.dir = (key === "size" || key === "mod") ? -1 : 1; }
+    renderHead();
+    apply(true);
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Row rendering
+   * ------------------------------------------------------------------ */
+
+  function chip(t) { return '<span class="chip t-' + t + '">' + t + '</span>'; }
+
+  function pathCell(r) {
+    const base = String(r._base || "");
+    const full = String(r.path || "");
+    const dir = base && full.endsWith(base) ? full.slice(0, full.length - base.length) : full;
+    let sub = "";
+    if (r._k === "files") {
+      const bits = [];
+      if (r.matched) bits.push('<code>' + esc(String(r.matched).slice(0, 90)) + '</code>');
+      if (r.altName) bits.push("alt: " + esc(r.altName));
+      if (bits.length) sub = '<span class="subline">' + bits.join(" &nbsp;") + '</span>';
+    } else if (r._k === "shares" && r.comment) {
+      sub = '<span class="subline">' + esc(r.comment) + '</span>';
+    }
+    const folder = folderToOpen(r);
+    const a = folderAttrs(folder, "dirlink");
+
+    let inner;
+    if (r._k === "files") {
+      /* only the directory portion is the folder link; filename stays plain */
+      inner = '<a' + a + '>' + FOLDER_ICON +
+                '<span class="dir">' + esc(dir) + '</span></a>' +
+              '<span class="base">' + esc(base) + '</span>';
+    } else {
+      /* shares / dirs: the whole path is the folder */
+      inner = '<a' + a + '>' + FOLDER_ICON +
+                '<span class="dir">' + esc(dir) + '</span>' +
+                '<span class="base">' + esc(base) + '</span></a>';
+    }
+
+    return '<span class="pathline" title="' + esc(full) + '">' +
+             '<span class="exp"></span>' + inner +
+           '</span>' + sub;
+  }
+
+  function rwCell(v) {
+    const s = String(v || "");
+    if (!s) return '<span class="rw none">&mdash;</span>';
+    return '<span class="rw' + (s.length > 1 ? " w" : "") + '">' + esc(s) + '</span>';
+  }
+
+  function rowHtml(r, idx) {
+    let tds = "";
+    const cols = TABS[state.tab].cols;
+    for (let i = 0; i < cols.length; i++) {
+      const c = cols[i];
+      let v = "";
+      switch (c.key) {
+        case "triage":  v = chip(r._t); break;
+        case "rule":    v = '<span class="rule" title="' + esc(r._rule) + '">' + esc(r._rule || "\u2014") + '</span>'; break;
+        case "path":    v = pathCell(r); break;
+        case "size":    v = r._size >= 0 ? esc(r.sizeHuman || humanSize(r._size)) : "\u2014"; break;
+        case "mod":     v = esc(r._mod || r.ts || "\u2014"); break;
+        case "rw":      v = rwCell(r._rw); break;
+        case "host":    v = '<span class="rule" title="' + esc(r._host) + '">' + esc(r._host || "\u2014") + '</span>'; break;
+        case "comment": v = esc(r.comment || "\u2014"); break;
+      }
+      tds += '<td class="' + c.cls + '">' + v + '</td>';
+    }
+    return '<tr class="row" data-idx="' + idx + '" tabindex="0">' + tds + '</tr>';
+  }
+
+  function detailHtml(r) {
+    const fields = [];
+    if (r._host)  fields.push(["Host", esc(r._host), false]);
+    if (r._share) fields.push(["Share", esc(r._share), false]);
+    if (r._rule)  fields.push(["Rule", esc(r._rule), false]);
+    if (r.matched) fields.push(["Matched pattern", esc(r.matched), true]);
+    if (r.altName) fields.push(["Alternative name", esc(r.altName), true]);
+    if (r._size >= 0) fields.push(["Size", esc((r.sizeHuman || humanSize(r._size)) + "  (" + nfmt(r._size) + " bytes)"), false]);
+    if (r._mod)   fields.push(["Modified", esc(r._mod), false]);
+    if (r._rw !== "") fields.push(["Access", esc(r._rw || "\u2014"), false]);
+    if (r.comment) fields.push(["Comment", esc(r.comment), false]);
+    if (r.ts)     fields.push(["Found at", esc(r.ts), false]);
+
+    const grid = fields.map(function (f) {
+      return '<div class="dfield"><div class="dk">' + f[0] + '</div><div class="dv' + (f[2] ? " hl" : "") + '">' + f[1] + '</div></div>';
+    }).join("");
+
+    let ctx;
+    const raw = r.context === undefined || r.context === null ? "" : String(r.context);
+    if (raw.trim()) {
+      ctx = '<div class="ctx-label">Match context</div><pre class="ctx">' + esc(raw) + '</pre>';
+    } else {
+      ctx = '<div class="ctx-none">No match context was captured for this result.</div>';
+    }
+
+    /* clamped by the browser to however many columns are visible */
+    const colspan = TABS[state.tab].cols.length;
+    const folder = folderToOpen(r);
+    return '<tr class="detail"><td colspan="' + colspan + '">' +
+      '<div class="detail-box">' +
+        '<div class="detail-head">' +
+          '<span class="full">' + esc(r.path || "") + '</span>' +
+          '<a' + folderAttrs(folder, "btn") + '>' + FOLDER_ICON_BTN + 'Open folder</a>' +
+          '<button type="button" class="btn" data-copy="' + esc(r.path || "") + '">' +
+            '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 3.2A1.7 1.7 0 0 0 8.9 2H3.7A1.7 1.7 0 0 0 2 3.7v5.2c0 .8.5 1.4 1.2 1.6"/></svg>' +
+            'Copy path</button>' +
+        '</div>' +
+        (grid ? '<div class="detail-grid">' + grid + '</div>' : '') +
+        ctx +
+      '</div></td></tr>';
+  }
+
+  /* incremental render */
+  function renderChunk() {
+    if (rendered >= view.length) { updateFoot(); return; }
+    const end = Math.min(view.length, rendered + CHUNK);
+    let html = "";
+    for (let i = rendered; i < end; i++) html += rowHtml(view[i], i);
+    elTbody.insertAdjacentHTML("beforeend", html);
+    rendered = end;
+    updateFoot();
+  }
+
+  function updateFoot() {
+    if (rendered < view.length) {
+      elTfoot.hidden = false;
+      elTfootMsg.textContent = "showing " + nfmt(rendered) + " of " + nfmt(view.length) + " \u2014 scroll for more";
+    } else if (view.length > CHUNK) {
+      elTfoot.hidden = false;
+      elTfootMsg.textContent = "end of " + nfmt(view.length) + " results";
+    } else {
+      elTfoot.hidden = true;
+    }
+  }
+
+  /* infinite scroll - keep filling until the page is taller than the viewport */
+  function maybeLoadMore() {
+    let guard = 0;
+    while (rendered < view.length && guard++ < 6) {
+      const doc = document.documentElement;
+      if ((window.innerHeight + (window.scrollY || 0)) < (doc.scrollHeight - 900)) break;
+      renderChunk();
+    }
+  }
+  let scrollTick = false;
+  window.addEventListener("scroll", function () {
+    if (scrollTick) return;
+    scrollTick = true;
+    requestAnimationFrame(function () {
+      scrollTick = false;
+      measureToolbar();   /* self-heals the sticky offset if a resize was missed */
+      maybeLoadMore();
+    });
+  }, {passive: true});
+  /* Column visibility is pure CSS now; the only thing JS still has to track
+     is the sticky offset (the toolbar's height, which changes when the filter
+     bar wraps). */
+  function onViewportChange() {
+    measureToolbar();
+    maybeLoadMore();
+  }
+  window.addEventListener("resize", onViewportChange);
+
+  /* row expand / collapse */
+  elTbody.addEventListener("click", function (e) {
+    const folderEl = e.target.closest("[data-folder]");
+    if (folderEl) {
+      /* Let the anchor's href attempt to open the folder (works in Firefox /
+         IE-mode intranet zones; Chrome blocks file: navigation from file: and
+         no-ops). We DON'T preventDefault - we only add the guaranteed
+         clipboard fallback + toast, and stop the row from toggling. */
+      e.stopPropagation();
+      copyFolder(folderEl.dataset.folder);
+      return;
+    }
+    const copyBtn = e.target.closest("[data-copy]");
+    if (copyBtn) { e.stopPropagation(); copyText(copyBtn.dataset.copy); return; }
+    if (e.target.closest("tr.detail")) return;
+    const tr = e.target.closest("tr.row");
+    if (tr) toggleRow(tr);
+  });
+  elTbody.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const folderEl = e.target.closest("a[data-folder]");
+    if (folderEl) {
+      /* Enter natively activates the anchor (its click runs the handler
+         above); Space does not, so emulate it. Either way, never toggle. */
+      e.stopPropagation();
+      if (e.key === " ") { e.preventDefault(); folderEl.click(); }
+      return;
+    }
+    const tr = e.target.closest("tr.row");
+    if (tr) { e.preventDefault(); toggleRow(tr); }
+  });
+
+  function toggleRow(tr) {
+    const nxt = tr.nextElementSibling;
+    if (nxt && nxt.classList.contains("detail")) {
+      nxt.remove();
+      tr.classList.remove("open");
+      return;
+    }
+    const r = view[+tr.dataset.idx];
+    if (!r) return;
+    tr.classList.add("open");
+    tr.insertAdjacentHTML("afterend", detailHtml(r));
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Apply filters
+   * ------------------------------------------------------------------ */
+
+  function apply(keepScroll) {
+    const rows = TABS[state.tab].rows;
+    const out = [];
+    for (let i = 0; i < rows.length; i++) {
+      if (matches(rows[i])) out.push(rows[i]);
+    }
+    view = sortRows(out, state.tab);
+    rendered = 0;
+    elTbody.innerHTML = "";
+
+    const noneAtAll = rows.length === 0;
+    if (!view.length) {
+      elEmpty.hidden = false;
+      elTfoot.hidden = true;
+      elEmptySub.textContent = noneAtAll
+        ? "This scan produced no " + ({files: "file results", shares: "share results", dirs: "directory results"}[state.tab]) + "."
+        : "Try widening the triage selection, removing a share or host filter, or clearing the search term.";
+      $("#btn-clear2").hidden = noneAtAll;
+    } else {
+      elEmpty.hidden = true;
+      renderChunk();
+    }
+
+    elShowing.innerHTML = "showing <b>" + nfmt(view.length) + "</b> of <b>" + nfmt(rows.length) + "</b>";
+    renderActiveChips();
+    updateBadges();
+
+    if (!keepScroll) maybeLoadMore();
+    else requestAnimationFrame(maybeLoadMore);
+  }
+
+  function updateBadges() {
+    ["files", "shares", "dirs"].forEach(function (k) {
+      const b = $("#badge-" + k);
+      if (!b) return;
+      if (k === state.tab) { b.textContent = nfmt(view.length); return; }
+      const rows = TABS[k].rows;
+      let n = 0;
+      for (let i = 0; i < rows.length; i++) if (matches(rows[i])) n++;
+      b.textContent = nfmt(n);
+    });
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Tabs
+   * ------------------------------------------------------------------ */
+
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () { switchTab(t.dataset.tab); });
+  });
+
+  function switchTab(tab) {
+    if (!TABS[tab] || tab === state.tab) return;
+    state.tab = tab;
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.setAttribute("aria-selected", t.dataset.tab === tab ? "true" : "false");
+    });
+    $("#pane").setAttribute("aria-labelledby", "tab-" + tab);
+    /* facets that do not exist on this tab are hidden and their selection dropped */
+    ["share", "host", "rule", "ext"].forEach(function (f) {
+      const on = TABS[tab].facets.indexOf(f) !== -1;
+      if (controls[f]) {
+        controls[f].setVisible(on);
+        controls[f].rebuild();
+      }
+      if (!on) state[f].clear();
+    });
+    syncFacets();
+    renderHead();
+    apply();
+    try { window.scrollTo(0, 0); } catch (e) { /* non-browser host */ }
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Search box
+   * ------------------------------------------------------------------ */
+
+  const applyQuery = debounce(function () {
+    state.q = elQ.value.trim().toLowerCase();
+    apply();
+  }, 140);
+
+  elQ.addEventListener("input", applyQuery);
+  elQ.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { elQ.value = ""; state.q = ""; apply(); }
+  });
+
+  /* ------------------------------------------------------------------ *
+   * Clear all
+   * ------------------------------------------------------------------ */
+
+  function clearAll() {
+    state.q = "";
+    elQ.value = "";
+    state.triage.clear();
+    ["share", "host", "rule", "ext"].forEach(function (f) { state[f].clear(); });
+    syncTiles();
+    syncFacets();
+    apply();
+  }
+  $("#btn-clear").addEventListener("click", clearAll);
+  $("#btn-clear2").addEventListener("click", clearAll);
+
+  /* ------------------------------------------------------------------ *
+   * Export
+   * ------------------------------------------------------------------ */
+
+  const EXPORT_COLS = {
+    files:  ["triage", "rule", "path", "host", "share", "name", "ext", "size", "sizeHuman", "modified", "rw", "matched", "altName", "context", "ts"],
+    shares: ["triage", "path", "host", "rw", "comment", "ts"],
+    dirs:   ["triage", "path", "ts"]
+  };
+
+  function csvCell(v) {
+    if (v === null || v === undefined) return "";
+    let s = String(v).replace(/\r\n|\r|\n/g, "\\n");
+    if (/[",;\t]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function exportCsv() {
+    const cols = EXPORT_COLS[state.tab];
+    const lines = [cols.join(",")];
+    for (let i = 0; i < view.length; i++) {
+      const r = view[i];
+      lines.push(cols.map(function (c) { return csvCell(r[c]); }).join(","));
+    }
+    download(lines.join("\r\n"), "text/csv;charset=utf-8", "csv");
+  }
+
+  function exportJson() {
+    const cols = EXPORT_COLS[state.tab];
+    const out = view.map(function (r) {
+      const o = {};
+      cols.forEach(function (c) { if (r[c] !== undefined) o[c] = r[c]; });
+      return o;
+    });
+    download(JSON.stringify({
+      meta: META,
+      tab: state.tab,
+      filters: {
+        search: state.q,
+        triage: Array.from(state.triage),
+        shares: Array.from(state.share),
+        hosts: Array.from(state.host),
+        rules: Array.from(state.rule),
+        exts: Array.from(state.ext)
+      },
+      count: out.length,
+      rows: out
+    }, null, 2), "application/json", "json");
+  }
+
+  function download(text, mime, extname) {
+    try {
+      const stamp = String(META.generated || new Date().toISOString()).replace(/[^0-9A-Za-z]/g, "").slice(0, 14);
+      const name = "snaffler-" + state.tab + "-" + (stamp || "export") + "." + extname;
+      const blob = new Blob(["\ufeff".slice(0, extname === "csv" ? 1 : 0) + text], {type: mime});
+      const url = URL.createObjectURL(blob);
+      const a = el("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 4000);
+      toast("Exported " + nfmt(view.length) + " rows \u2192 " + name, true);
+    } catch (err) {
+      toast("Export failed: " + err, false);
+    }
+  }
+
+  $("#btn-csv").addEventListener("click", exportCsv);
+  $("#btn-json").addEventListener("click", exportJson);
+
+  /* ------------------------------------------------------------------ *
+   * Clipboard
+   * ------------------------------------------------------------------ */
+
+  function copyText(txt, okMsg, errMsg) {
+    okMsg = okMsg || "Path copied to clipboard";
+    errMsg = errMsg || "Could not copy \u2014 select the path manually";
+    const done = function (ok) { toast(ok ? okMsg : errMsg, ok); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function () { done(true); }, function () { done(legacyCopy(txt)); });
+        return;
+      }
+    } catch (e) { /* fall through */ }
+    done(legacyCopy(txt));
+  }
+
+  /* Guaranteed fallback for the "open folder" links: copy the native folder
+     path so the analyst can paste it straight into Explorer's address bar. */
+  function copyFolder(native) {
+    const p = String(native || "");
+    if (!p) return;
+    copyText(p,
+      "Folder path copied \u2014 paste into Explorer",
+      "Couldn't copy folder path \u2014 select it manually");
+  }
+
+  function legacyCopy(txt) {
+    try {
+      const ta = el("textarea");
+      ta.value = txt;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  let toastT = 0;
+  function toast(msg, ok) {
+    elToast.innerHTML = (ok ? '<span class="ok">\u2713</span>' : '<span>\u26a0</span>') + "<span></span>";
+    elToast.lastChild.textContent = msg;
+    elToast.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { elToast.classList.remove("show"); }, 2600);
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Theme
+   * ------------------------------------------------------------------ */
+
+  const SUN = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="3.1"/><path d="M8 1v1.6M8 13.4V15M15 8h-1.6M2.6 8H1M12.9 3.1l-1.1 1.1M4.2 11.8l-1.1 1.1M12.9 12.9l-1.1-1.1M4.2 4.2 3.1 3.1"/></svg>';
+  const MOON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 9.3A5.8 5.8 0 0 1 6.7 2.5 5.8 5.8 0 1 0 13.5 9.3Z"/></svg>';
+
+  function setTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    $("#btn-theme").innerHTML = t === "dark" ? MOON : SUN;
+    try { localStorage.setItem("snaffler.theme", t); } catch (e) { /* file:// may block */ }
+  }
+  $("#btn-theme").addEventListener("click", function () {
+    setTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+  (function initTheme() {
+    let t = "dark";
+    try { const s = localStorage.getItem("snaffler.theme"); if (s === "light" || s === "dark") t = s; } catch (e) {}
+    setTheme(t);
+  })();
+
+  /* ------------------------------------------------------------------ *
+   * Keyboard
+   * ------------------------------------------------------------------ */
+
+  document.addEventListener("keydown", function (e) {
+    const tag = (e.target && e.target.tagName) || "";
+    const typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (e.target && e.target.isContentEditable);
+    if (e.key === "/" && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      elQ.focus();
+      elQ.select();
+      return;
+    }
+    if (e.key === "Escape") {
+      closeAll(null);
+      if (elQ.value) { elQ.value = ""; state.q = ""; apply(); }
+    }
+  });
+
+  /* ------------------------------------------------------------------ *
+   * Sticky-header offset
+   * ------------------------------------------------------------------ */
+
+  function measureToolbar() {
+    const h = elToolbar.getBoundingClientRect().height;
+    const stuck = window.getComputedStyle(elToolbar).position === "sticky";
+    document.documentElement.style.setProperty("--toolbar-h", (stuck ? Math.round(h) : 0) + "px");
+  }
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(onViewportChange);
+    ro.observe(elToolbar);
+    ro.observe(document.documentElement);
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Boot
+   * ------------------------------------------------------------------ */
+
+  renderMeta();
+  renderTiles();
+  ["share", "host", "rule", "ext"].forEach(buildFacet);
+  ["share", "host", "rule", "ext"].forEach(function (f) {
+    if (controls[f]) controls[f].setVisible(TABS[state.tab].facets.indexOf(f) !== -1);
+  });
+  renderHead();
+  measureToolbar();
+  apply();
+  document.title = "Snaffler report" + (META.host ? " \u2014 " + META.host : "");
+})();
+</script>
+
+</body>
+</html>

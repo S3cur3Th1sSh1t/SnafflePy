@@ -1,0 +1,62 @@
+# snaffleplus - high-value files worth flagging by name/extension, where the
+# resolved secrets live even when the templated source doesn't match.
+[[ClassifierRules]]
+EnumerationScope = "FileEnumeration"
+RuleName = "KeepTerraformState"
+MatchAction = "Snaffle"
+Description = "Terraform state files hold the RESOLVED values of every secret in the config."
+MatchLocation = "FileExtension"
+WordListType = "Exact"
+MatchLength = 0
+WordList = ["\\.tfstate", "\\.tfstate\\.backup"]
+Triage = "Red"
+
+[[ClassifierRules]]
+EnumerationScope = "FileEnumeration"
+RuleName = "KeepKubeconfigByName"
+MatchAction = "Snaffle"
+Description = "Kubernetes client configs - usually carry cluster tokens or client certs."
+MatchLocation = "FileName"
+WordListType = "Exact"
+MatchLength = 0
+WordList = ["kubeconfig", "kubeconfig\\.yaml", "kubeconfig\\.yml"]
+Triage = "Red"
+
+[[ClassifierRules]]
+EnumerationScope = "FileEnumeration"
+RuleName = "KeepKubeConfigByPath"
+MatchAction = "Snaffle"
+Description = "Files under a .kube directory."
+MatchLocation = "FilePath"
+WordListType = "Contains"
+MatchLength = 0
+WordList = ["\\\\\\.kube\\\\", "/\\.kube/"]
+Triage = "Red"
+
+[[ClassifierRules]]
+EnumerationScope = "FileEnumeration"
+RuleName = "KeepWpConfigByName"
+MatchAction = "Snaffle"
+Description = "WordPress config - database credentials and auth salts."
+MatchLocation = "FileName"
+WordListType = "Exact"
+MatchLength = 0
+WordList = ["wp-config\\.php"]
+Triage = "Red"
+
+[[ClassifierRules]]
+EnumerationScope = "FileEnumeration"
+RuleName = "KeepCloudCliCredsByPath"
+MatchAction = "Snaffle"
+Description = "Cached cloud CLI credentials (gcloud/azure/aws token stores)."
+MatchLocation = "FilePath"
+WordListType = "Contains"
+MatchLength = 0
+WordList = [
+"application_default_credentials\\.json",
+"\\\\gcloud\\\\.*credentials",
+"accessTokens\\.json",
+"azureProfile\\.json",
+"\\.azure\\\\.*\\.json"
+]
+Triage = "Red"
