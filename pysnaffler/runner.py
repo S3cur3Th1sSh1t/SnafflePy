@@ -16,6 +16,7 @@ from . import dotnet
 from .concurrency import BlockingMq, SnafflerMessageType
 from .context import ctx
 from .options import LogType
+from .progress import Heartbeat
 
 # -- NLog levels -------------------------------------------------------------
 TRACE, DEBUG, INFO, WARN, ERROR, FATAL = range(6)
@@ -115,6 +116,7 @@ class SnaffleRunner:
         self._logfile = None
         self._lock = threading.Lock()
         self._json_entries = []
+        self._heartbeat = None
 
     # -- prefix --------------------------------------------------------------
     def host_string(self):
@@ -148,6 +150,11 @@ class SnaffleRunner:
         if options.LogToFile:
             self._logfile = open(options.LogFilePath, "w", encoding="utf-8")
 
+        # only ever on an interactive console - it must not land in a pipe
+        if options.LogToConsole and sys.stdout.isatty():
+            self._heartbeat = Heartbeat(sys.stdout, self._lock)
+            self._heartbeat.start()
+
     def parse_log_level_string(self, log_level_string):
         level = (log_level_string or "").lower()
         if level in ("debug", "degub"):
@@ -178,6 +185,8 @@ class SnaffleRunner:
         if not self._enabled(level):
             return
         with self._lock:
+            if self._heartbeat is not None:
+                self._heartbeat.erase()
             if self.Options.LogToConsole:
                 stream = sys.stdout
                 if stream.isatty():
@@ -211,8 +220,14 @@ class SnaffleRunner:
         for message in self.Mq.consume():
             self.process_message(message)
             if message.Type in (SnafflerMessageType.Fatal, SnafflerMessageType.Finish):
+                self.stop_heartbeat()
                 return True
         return False
+
+    def stop_heartbeat(self):
+        if self._heartbeat is not None:
+            self._heartbeat.stop()
+            self._heartbeat = None
 
     def process_message(self, message):
         sep = self.Options.Separator
@@ -229,6 +244,8 @@ class SnaffleRunner:
         elif t == SnafflerMessageType.FileResult:
             if ctx.Collector is not None:
                 ctx.Collector.add_file_result(message)
+            if self._heartbeat is not None:
+                self._heartbeat.found += 1
             self._write(WARN, datetime_prefix + "[File]" + sep +
                         self.file_result_log_from_message(message), message)
         elif t == SnafflerMessageType.DirResult:
@@ -334,6 +351,7 @@ class SnaffleRunner:
                 fh.write("]\n}")
 
     def close(self):
+        self.stop_heartbeat()
         if self._logfile is not None:
             try:
                 self._logfile.close()

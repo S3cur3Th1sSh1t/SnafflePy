@@ -64,10 +64,22 @@ def parse_unc(path):
     return server, share, relative
 
 
-def filetime_to_datetime(ts):
-    """impacket hands back epoch seconds for mtime."""
+_FILETIME_EPOCH_DELTA = 11644473600     # seconds from 1601-01-01 to 1970-01-01
+_TICKS_PER_SECOND = 10000000            # a FILETIME tick is 100ns
+
+
+def filetime_to_datetime(filetime):
+    """A raw Win32 FILETIME as naive local time, the way .NET's FileInfo has it.
+
+    Deliberately not impacket's get_*_epoch() helpers: those mask the low 20
+    bits off the tick count, losing up to 0.105s, which drags any timestamp
+    sitting just past a second boundary back into the previous second and prints
+    the file as modified a second earlier than it was.
+    """
+    seconds, ticks = divmod(int(filetime), _TICKS_PER_SECOND)
     try:
-        return datetime.fromtimestamp(ts)
+        return datetime.fromtimestamp(seconds - _FILETIME_EPOCH_DELTA).replace(
+            microsecond=ticks // 10)
     except (OverflowError, OSError, ValueError):
         return datetime.fromtimestamp(0)
 
@@ -222,10 +234,13 @@ class SmbFileSystem(FileSystem):
             if entry.is_directory():
                 dirs.append(full)
             else:
+                # SharedFile's args are (ctime, atime, wtime, mtime) where mtime
+                # is LastChangeTime, so the write time is get_wtime(), not
+                # get_mtime().
                 files.append(FileInfo(
                     self, full,
                     length=entry.get_filesize(),
-                    last_write_time=filetime_to_datetime(entry.get_mtime_epoch())))
+                    last_write_time=filetime_to_datetime(entry.get_wtime())))
         return files, dirs
 
     def get_file_info(self, path):
@@ -240,7 +255,7 @@ class SmbFileSystem(FileSystem):
                 continue
             return FileInfo(self, path,
                             length=entry.get_filesize(),
-                            last_write_time=filetime_to_datetime(entry.get_mtime_epoch()))
+                            last_write_time=filetime_to_datetime(entry.get_wtime()))
         return FileInfo(self, path, exists=False)
 
     # -- File.ReadAllBytes / File.OpenRead -----------------------------------
