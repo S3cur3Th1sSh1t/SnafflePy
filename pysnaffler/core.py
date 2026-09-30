@@ -248,6 +248,10 @@ class SnaffCon:
 
     def check_exclusions(self, computer):
         options = ctx.MyOptions
+        if not options.ComputerExclusions:
+            # no exclusions configured: skip the local DNS lookup that
+            # fails closed for proxy-only / internal (.local) names
+            return False
         if is_ip(computer):
             if computer in options.ComputerExclusions:
                 self.Mq.degub("Excluded " + computer)
