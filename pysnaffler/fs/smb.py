@@ -10,7 +10,12 @@ import threading
 from contextlib import contextmanager
 from datetime import datetime, timezone
 
-from impacket.smbconnection import SMBConnection, SessionError
+from impacket.smbconnection import (
+    FILE_READ_DATA,
+    FILE_SHARE_READ,
+    SMBConnection,
+    SessionError,
+)
 
 from .base import (DirectoryNotFoundError, FileInfo, FileSystem, IOError_,
                    UnauthorizedAccessError)
@@ -280,7 +285,15 @@ class SmbFileSystem(FileSystem):
             with self.pool.connection(server) as conn:
                 try:
                     tid = conn.connectTree(share)
-                    fid = conn.openFile(tid, relative)
+                    # Impacket defaults to requesting both read and write access.
+                    # Request read-only access so readable, non-writable shares
+                    # are classified the same way as C# File.OpenRead().
+                    fid = conn.openFile(
+                        tid,
+                        relative,
+                        desiredAccess=FILE_READ_DATA,
+                        shareMode=FILE_SHARE_READ,
+                    )
                     conn.closeFile(tid, fid)
                     return True
                 except SessionError as exc:
